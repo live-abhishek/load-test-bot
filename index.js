@@ -4,6 +4,9 @@
 const dotenv = require('dotenv');
 const path = require('path');
 const restify = require('restify');
+const colors = require("colors");
+const moment = require("moment");
+const {connect, sendMessage} = require("./bot-message");
 
 
 // Import required bot services.
@@ -80,3 +83,19 @@ server.post('/api/messages', (req, res) => {
         await myBot.onTurn(context);
     });
 });
+// ======== Custom Code =========
+counter = 0;
+server.use(restify.plugins.bodyParser());
+
+server.post("/api/v3/conversations/:conversationId/activities/:activityId", (req, res)=>{
+    const date = moment().format("h:mm:ss SSS a");
+    console.log(`${date} ${req.body.type}: ${req.body.text || ""}`.blue);
+    res.end();
+});
+
+server.get("/sendNextMessage", (req, res) => {
+    sendMessage(counter++);
+    res.end();
+});
+
+connect();
